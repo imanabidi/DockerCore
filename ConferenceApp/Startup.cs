@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using ConferenceApp.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace ConferenceApp
 {
@@ -23,6 +19,11 @@ namespace ConferenceApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var connectionString = Configuration.GetConnectionString("DbConnection");
+            services.AddEntityFrameworkNpgsql()
+                .AddDbContext<ConferenceContext>(
+                    opts => opts.UseNpgsql(connectionString)
+                );                
             services.AddMvc();
         }
 
@@ -35,6 +36,8 @@ namespace ConferenceApp
             }
 
             app.UseMvc();
+
+            Seeder.SeedDatabase(app.ApplicationServices);
         }
     }
 }
